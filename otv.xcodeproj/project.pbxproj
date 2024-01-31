@@ -44,6 +44,7 @@
 		A526BC132B536F5D00D16129 /* otvUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = otvUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A526BC172B536F5D00D16129 /* otvUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = otvUITests.swift; sourceTree = "<group>"; };
 		A526BC192B536F5D00D16129 /* otvUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = otvUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		A5CA0F752B5626910026DCAE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,6 +95,7 @@
 		A526BBFB2B536F5C00D16129 /* otv */ = {
 			isa = PBXGroup;
 			children = (
+				A5CA0F752B5626910026DCAE /* Info.plist */,
 				A526BBFC2B536F5C00D16129 /* otvApp.swift */,
 				A526BBFE2B536F5C00D16129 /* ContentView.swift */,
 				A526BC002B536F5D00D16129 /* Assets.xcassets */,
@@ -137,6 +139,7 @@
 				A526BBF52B536F5C00D16129 /* Sources */,
 				A526BBF62B536F5C00D16129 /* Frameworks */,
 				A526BBF72B536F5C00D16129 /* Resources */,
+				A523E50E2B5F7CEE001D292E /* SwiftFormat */,
 			);
 			buildRules = (
 			);
@@ -215,6 +218,11 @@
 				Base,
 			);
 			mainGroup = A526BBF02B536F5C00D16129;
+			packageReferences = (
+				A50FEDE72B5E37ED003FAD22 /* XCRemoteSwiftPackageReference "SwiftLint" */,
+				A50FEDE82B5F78F7003FAD22 /* XCRemoteSwiftPackageReference "MusadoraKit" */,
+				A523E50D2B5F7CBD001D292E /* XCRemoteSwiftPackageReference "swift-format" */,
+			);
 			productRefGroup = A526BBFA2B536F5C00D16129 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -251,6 +259,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		A523E50E2B5F7CEE001D292E /* SwiftFormat */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = SwiftFormat;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if which swiftformat >/dev/null; then\n  swiftformat .\nelse\n  echo \"warning: SwiftFormat not installed, download from https://github.com/nicklockwood/SwiftFormat\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		A526BBF52B536F5C00D16129 /* Sources */ = {
@@ -422,11 +451,16 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"otv/Preview Content\"";
+				DEVELOPMENT_TEAM = 78L6GC885C;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = otv/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = otv;
+				INFOPLIST_KEY_NSAppleMusicUsageDescription = "Please allow access to continue";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIStatusBarStyle = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -434,7 +468,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = nickrosen.otv;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nickrosen.otv;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -450,11 +484,16 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"otv/Preview Content\"";
+				DEVELOPMENT_TEAM = 78L6GC885C;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = otv/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = otv;
+				INFOPLIST_KEY_NSAppleMusicUsageDescription = "Please allow access to continue";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIStatusBarStyle = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -462,7 +501,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = nickrosen.otv;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nickrosen.otv;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -582,6 +621,33 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A50FEDE72B5E37ED003FAD22 /* XCRemoteSwiftPackageReference "SwiftLint" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/realm/SwiftLint";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.54.0;
+			};
+		};
+		A50FEDE82B5F78F7003FAD22 /* XCRemoteSwiftPackageReference "MusadoraKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/rryam/MusadoraKit";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+		A523E50D2B5F7CBD001D292E /* XCRemoteSwiftPackageReference "swift-format" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-format";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 509.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
 	};
 	rootObject = A526BBF12B536F5C00D16129 /* Project object */;
 }
