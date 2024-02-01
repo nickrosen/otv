@@ -45,6 +45,12 @@ public struct LibraryPlaylist: Codable, MusicItem {
   }
 }
 
+// Define an enumeration to wrap either a Track or a Song
+enum TrackOrSong {
+    case track(Track)
+    case song(Song)
+}
+
 struct Item: Identifiable, Hashable {
     var id = UUID()
     let name: String
@@ -69,7 +75,7 @@ struct ContentView: View {
     
     var body: some View {
         NavigationView {
-            Button("Do It!", systemImage: "arrow.up", action: getPlaylists)
+            Button("Do It!", systemImage: "arrow.up", action: fetchPlaylistsWithTracks)
 //                .labelStyle(.iconOnly)
             List(playlists) {playlist in
                 HStack {
@@ -93,37 +99,6 @@ struct ContentView: View {
     
     let taylorsVersions = ["1989", "Speak Now", "Red", "Fearless" ]
     let TV = "Taylor's Version"
-    
-//    func searchAppleMusic(_ searchTerm: String!) -> [Song] {
-//        let lock = DispatchSemaphore(value: 0)
-//        var songs = [Song]()
-//        var musicRequest = URLRequest(url: musicURL)
-//        musicRequest.httpMethod = "GET"
-//        musicRequest.addValue("Bearer \(developerToken)", forHTTPHeaderField: "Authorization")
-//        musicRequest.addValue(getUserToken(), forHTTPHeaderField: "Music-User-Token")
-//        
-//        URLSession.shared.dataTask(with: musicRequest) { data, response, error in
-//            guard error == nil else { return }
-//            
-//            if let json = try? JSON(data: data!) {
-//                let result = json["results"]["songs"]["data"].array!
-//                
-//                for song in result {
-//                    let attributes = song["attributes"]
-//                    let currentSong = Song(id: attributes["playParams"]["id"].string!, name: attributes["name"].string!, artistName: attributes["artistName"].string!, artworkURL: attributes["artwork"]["url"].string!)
-//                    songs.append(currentSong)
-//                }
-//                
-//                lock.signal()
-//            } else {
-//                lock.signal()
-//            }
-//        }.resume()
-//        
-//        lock.wait()
-//        
-//        return songs
-//    }
     
     func addTracksToAppleMusicPlaylist(targetPlaylistId: String, tracksToAdd: [Song]) async throws -> Void {
         let tracks = AppleMusicPlaylistPostRequestBody(data: tracksToAdd.compactMap {
@@ -153,7 +128,7 @@ struct ContentView: View {
 
     
     
-    private func shouldReplaceWithTV(track: MPMediaItem) -> Bool{
+    private func shouldReplaceWithTV(track: Track) -> Bool{
         for albumTitle in taylorsVersions {
             let trackAlbum = track.albumTitle ?? ""
             if(trackAlbum.contains(albumTitle) && !trackAlbum.contains(TV)){
@@ -170,18 +145,6 @@ struct ContentView: View {
         request.limit = 1
         return request
     }
-    
-    func addSongsToPlaylist(songs: MusicItemCollection<Song>, to playlist: Playlist) async {
-      for song in songs {
-        do {
-          let _ = try await MusicLibrary.shared.add(song, to: playlist)
-        } catch {
-          print("Error adding song \(song.title) to the playlist \(playlist.name): \(error)")
-        }
-      }
-    }
-    
-//    private func fetchTaylorsVersion(searchTerm: String, completion: @escaping (Item?) -> Void) {
     
     private func fetchTaylorsVersion(_ searchTerm: String) async -> Song? {
         do {
@@ -200,63 +163,225 @@ struct ContentView: View {
     }
 
     
-    private func makeTVPlaylists(playlists:[MPMediaItemCollection]) {
+//    private func makeTVPlaylists(playlists:[Playlist]) {
+//        Task {
+//            print("makeTVPlaylists")
+//            for playlist in playlists {
+////                print( "\(playlist.value(forProperty: MPMediaPlaylistPropertyName) ?? "") (Taylor's Version")
+////                try await MusicLibrary.shared.createPlaylist(name: "\(playlist.value(forProperty: MPMediaPlaylistPropertyName) ?? "") (Taylor's Version")
+//                
+//                let items = playlist.tracks
+//                print("fun", items?[0])
+//                
+//                var newPlaylist = [Song]()
+//                
+//                for item in items {
+//                    if(shouldReplaceWithTV(track: item)){
+//                        let term = "\(item.title ?? "") (Taylor's Version) Taylor Swift"
+//                        if let tv = await fetchTaylorsVersion(term) {
+//                            newPlaylist.append(tv)
+//                        }
+//                    } else {
+//                        newPlaylist.append(item ?? nil)
+//                    }
+//                }
+//                print("np", newPlaylist)
+////                
+////                do {
+////                    let newPlaylistName = "\(playlist.value(forProperty: MPMediaPlaylistPropertyName) ?? "") (Taylor's Version)"
+////                    let createdPlaylist = try await MusicLibrary.shared.createPlaylist(name: newPlaylistName, items: newPlaylist)
+////                    print("Created playlist: \(createdPlaylist.name)")
+////                } catch {
+////                    print("Failed to create playlist: \(error)")
+////                }
+//            }
+//        }
+//    }
+//    private func makeTVPlaylists(playlists: [Playlist]) {
+//        Task {
+//            print("makeTVPlaylists")
+//            for playlist in playlists {
+//                guard let items = playlist.tracks else {
+//                    print("No tracks in playlist: \(playlist.title)")
+//                    continue
+//                }
+//
+//                print("Processing playlist: \(playlist.title)")
+//                
+//                var newPlaylistTracks = [Song]()
+//
+//                for item in items {
+//                    if shouldReplaceWithTV(track: item) {
+//                        let term = "\(item.title ?? "") (Taylor's Version) Taylor Swift"
+//                        if let tv = await fetchTaylorsVersion(term) {
+//                            newPlaylistTracks.append(tv)
+//                        }
+//                    } else {
+//                        newPlaylistTracks.append(item)
+//                    }
+//                }
+//
+
+//            }
+//        }
+//    }
+    private func makeTVPlaylists(playlists: [Playlist]) {
         Task {
             print("makeTVPlaylists")
             for playlist in playlists {
-                print( "\(playlist.value(forProperty: MPMediaPlaylistPropertyName) ?? "") (Taylor's Version")
-//                try await MusicLibrary.shared.createPlaylist(name: "\(playlist.value(forProperty: MPMediaPlaylistPropertyName) ?? "") (Taylor's Version")
+                guard let items = playlist.tracks else {
+                    continue
+                }
+
+                print("Processing playlist: \(playlist.name)")
                 
-                let items = playlist.items
-                var newPlaylist = [Song]()
-                
+                let newPlaylist = try await MusicLibrary.shared.createPlaylist(name: "\(playlist.name) (Taylor's Version")
+
                 for item in items {
-                    if(shouldReplaceWithTV(track: item)){
-                        let term = "\(item.title ?? "") (Taylor's Version) Taylor Swift"
-                        if let tv = await fetchTaylorsVersion(term) {
-                            newPlaylist.append(tv)
+                    if shouldReplaceWithTV(track: item) {
+                        let term = "\(item.title) (Taylor's Version) Taylor Swift"
+                        if let tvSong = await fetchTaylorsVersion(term) {
+//                            newPlaylistTracks.append(.song(tvSong))
+                            do {
+                              let _ = try await MusicLibrary.shared.add(tvSong, to: newPlaylist)
+                            } catch {
+                              print("Error adding song \(tvSong.title) to the playlist \(playlist.name): \(error)")
+                            }
                         }
                     } else {
-//                        newPlaylist.append(item ?? nil)
+//                        newPlaylistTracks.append(.track(item))
+                        do {
+                          let _ = try await MusicLibrary.shared.add(item, to: newPlaylist)
+                        } catch {
+                          print("Error adding song \(item.title) to the playlist \(playlist.name): \(error)")
+                        }
                     }
-                }
-                print("np", newPlaylist)
-                
-                do {
-                    let newPlaylistName = "\(playlist.value(forProperty: MPMediaPlaylistPropertyName) ?? "") (Taylor's Version)"
-                    let createdPlaylist = try await MusicLibrary.shared.createPlaylist(name: newPlaylistName, items: newPlaylist)
-                    print("Created playlist: \(createdPlaylist.name)")
-                } catch {
-                    print("Failed to create playlist: \(error)")
                 }
             }
         }
     }
     
-    private func getPlaylists(){
-        let query: MPMediaQuery = MPMediaQuery.playlists()
-        let playlists = query.collections
-        guard playlists != nil else {
-            return
-        }
-        
-        var playListsToDuplicate:[MPMediaItemCollection] = []
-        
-        for playlist in playlists ?? [] {
-//            print("Playlist Title: \(playlist.value(forProperty: MPMediaPlaylistPropertyName) ?? ""), songs: \(playlist.count)")
-            let items = playlist.items
+    private func fetchPlaylistsWithTracks() {
+        // use task for async
+        Task {
+            // request permission
+            let status = await MusicAuthorization.request()
+            switch status {
+            case .authorized:
+                // Request -> Response
+                do{
+                    // Request for playlists
+                    let playlistsRequest = MusicLibraryRequest<Playlist>()
+                    let playlistsResponse = try await playlistsRequest.response()
+                    
+                    var playListsToDuplicate:[Playlist] = []
 
-            for item in items {
-//                print("Track Title: \(item.title ?? "") \(item.playbackStoreID) \(item.artist ?? "")")
-                if(item.artist?.contains("Taylor Swift") == true ){
-                    if(shouldReplaceWithTV(track: item)){
-                        playListsToDuplicate.append(playlist)
+                    for playlist in playlistsResponse.items {
+                        // Request for tracks in the playlist
+                        let playlistWithTracks:Playlist = try await playlist.with([.tracks])
+    //                        self.playlistsWithTracks = playlistWithTracks
+                        if let tracks = playlistWithTracks.tracks {
+                            print("Playlist: \(playlistWithTracks)")
+                            for track in tracks {
+                                if(track.artistName.contains("Taylor Swift")){
+                                    if(shouldReplaceWithTV(track: track)){
+    //                                        Push to duplicate list
+                                        playListsToDuplicate.append(playlistWithTracks)
+                                    }
+                                    print("Track: \(track.id) \(track.title) \(track.artistName)  \(track.albumTitle ?? "")")
+                                }
+                                
+                            }
+                        }
                     }
+                    print("To duplicate: \(playListsToDuplicate[0])")
+                    makeTVPlaylists(playlists: playListsToDuplicate)
+//                    self.playlists = playlistsResponse.items
+    //                    this is wrong
+    //                    makeTVPlaylists(playlists: playListsToDuplicate)
+                } catch {
+                    print(String(describing: error))
                 }
+                
+                // Assign songs
+            default:
+                break
             }
+            
+            
         }
-
-        makeTVPlaylists(playlists: Array(Set(playListsToDuplicate)))
+    }
+    
+//    private func getPlaylists() async {
+//        // Check for Music authorization status
+//        let status = await MusicAuthorization.currentStatus()
+//
+//        switch status {
+//        case .authorized:
+//            await fetchPlaylists()
+//        case .notDetermined:
+//            // If the authorization status is not determined, request authorization
+//            let newStatus = await MusicAuthorization.request()
+//            if newStatus == .authorized {
+//                await fetchPlaylists()
+//            } else {
+//                // Handle the case where authorization is denied
+//                print("Music authorization was denied.")
+//            }
+//        default:
+//            // Handle other cases, like restricted or denied
+//            print("Access to music library is restricted or previously denied.")
+//        }
+//    }
+//
+//    private func fetchPlaylists() async {
+//        do {
+//            let playlists = try await MusicLibrary.default.playlists(limit: nil, including: [.name, .curatorName]).items
+//            
+//            var playlistsToDuplicate = [Playlist]()
+//            
+//            for playlist in playlists {
+//                let songs = try await playlist.songs.items
+//                
+//                for song in songs {
+//                    if let artistName = song.artistName, artistName.contains("Taylor Swift") {
+//                        if shouldReplaceWithTV(song: song) {
+//                            playlistsToDuplicate.append(playlist)
+//                            break
+//                        }
+//                    }
+//                }
+//            }
+//
+//            // Process playlistsToDuplicate as needed
+//
+//        } catch {
+//            print("Error fetching playlists: \(error)")
+//        }
+//    }
+//        let query: MPMediaQuery = MPMediaQuery.playlists()
+//        let playlists = query.collections
+//        guard playlists != nil else {
+//            return
+//        }
+//        
+//        var playListsToDuplicate:[MPMediaItemCollection] = []
+//        
+//        for playlist in playlists ?? [] {
+////            print("Playlist Title: \(playlist.value(forProperty: MPMediaPlaylistPropertyName) ?? ""), songs: \(playlist.count)")
+//            let items = playlist.items
+//
+//            for item in items {
+////                print("Track Title: \(item.title ?? "") \(item.playbackStoreID) \(item.artist ?? "")")
+//                if(item.artist?.contains("Taylor Swift") == true ){
+//                    if(shouldReplaceWithTV(track: item)){
+//                        playListsToDuplicate.append(playlist)
+//                    }
+//                }
+//            }
+//        }
+//
+//        makeTVPlaylists(playlists: Array(Set(playListsToDuplicate)))
     }
     
 //    private let request: MusicCatalogSearchRequest = {
@@ -294,60 +419,7 @@ struct ContentView: View {
 //        }
 //    }
 //    
-//    
-//    private func fetchPlaylistsWithTracks() {
-//        // use task for async
-//        Task {
-//            // request permission
-//            let status = await MusicAuthorization.request()
-//            switch status {
-//            case .authorized:
-//                // Request -> Response
-//                do{
-//                    // Request for playlists
-//                    let playlistsRequest = MusicLibraryRequest<Playlist>()
-//                    let playlistsResponse = try await playlistsRequest.response()
-//                    
-//                    var playListsToDuplicate:[Playlist] = []
-//
-//                    for playlist in playlistsResponse.items {
-//                        // Request for tracks in the playlist
-//                        let playlistWithTracks:Playlist = try await playlist.with([.tracks])
-////                        self.playlistsWithTracks = playlistWithTracks
-//                        if let tracks = playlistWithTracks.tracks {
-//                            print("Playlist: \(playlistWithTracks)")
-//                            for track in tracks {
-//                                if(track.artistName.contains("Taylor Swift")){
-//                                    if(shouldReplaceWithTV(track: track)){
-////                                        Push to duplicate list
-//                                        playListsToDuplicate.append(playlistWithTracks)
-//                                    }
-//                                    print("Track: \(track.id) \(track.title) \(track.artistName)  \(track.albumTitle ?? "")")
-//                                }
-//                                
-//                            }
-//                        }
-//                    }
-//                    print("To duplicate: \(playListsToDuplicate[0])")
-//                    self.playlists = playlistsResponse.items
-////                    this is wrong
-////                    makeTVPlaylists(playlists: playListsToDuplicate)
-//                } catch {
-//                    print(String(describing: error))
-//                }
-//                
-//                // Assign songs
-//            default:
-//                break
-//            }
-//            
-//            
-//        }
-//        getPlaylists()
-//    }
-
-
-}
+// \
 
 #Preview {
     ContentView()
