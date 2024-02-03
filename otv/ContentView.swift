@@ -166,39 +166,38 @@ struct ContentView: View {
         case track(Track)
     }
     
-    private func makeTVPlaylists(playlists: [Playlist]) {
-        Task {
-            print("makeTVPlaylists")
-            for playlist in playlists {
-                guard let items = playlist.tracks else {
-                    continue
-                }
-                
-                print("Processing playlist: \(playlist.name)")
-                var playlistItems = [SongOrTrack]()
-                
-                for item in items {
-                    if shouldReplaceWithTV(track: item) {
-                        let term = "\(item.title) (Taylor's Version) Taylor Swift"
-                        print("term: ", term)
-                        if let tvSong = await fetchTaylorsVersion(term) {
-                            playlistItems.append(.song(tvSong))
-                        }
-                    } else {
-                        playlistItems.append(.track(item))
+    private func processPlaylist(_ playlist: Playlist) async {
+        guard let items = playlist.tracks else {
+            return
+        }
+        
+        print("Processing playlist: \(playlist.name)")
+        
+        do {
+            let newPlaylist = try await MusicLibrary.shared.createPlaylist(name: "\(playlist.name) (Taylor's Version)")
+
+            for item in items {
+                if shouldReplaceWithTV(track: item) {
+                    let term = "\(item.title) (Taylor's Version) Taylor Swift"
+                    if let tvSong = await fetchTaylorsVersion(term) {
+                        _ = try await MusicLibrary.shared.add(tvSong, to: newPlaylist)
                     }
-                }
-                print("fff", playlist.name, playlistItems.count)
-                
-                do {
-                    let newPlaylist = try await MusicLibrary.shared.createPlaylist(name: "\(playlist.name) (Taylor's Version")
-                    // Add all items to the playlist in one go
-                    try await addItems(playlistItems, to: newPlaylist)
-                } catch {
-                    print("Failed to create or populate playlist: \(error)")
+                } else {
+                    _ = try await MusicLibrary.shared.add(item, to: newPlaylist)
                 }
             }
+        } catch {
+            print("Failed to create or populate playlist: \(error)")
         }
+    }
+    
+    private func makeTVPlaylists(playlists: [Playlist]) {
+        for playlist in playlists {
+               Task {
+                   await processPlaylist(playlist)
+                   print("Done: ", playlist.name)
+               }
+           }
     }
     
     private func addItems(_ items: [SongOrTrack], to playlist: Playlist) async throws {
@@ -228,6 +227,9 @@ struct ContentView: View {
                     var playListsToDuplicate:[Playlist] = []
                     
                     for playlist in playlistsResponse.items {
+                        // Assuming Playlist has an 'id' or similar unique identifier
+                        let playlistID = String(describing: playlist.id) // Convert to String if necessary
+                        
                         // Request for tracks in the playlist
                         let playlistWithTracks:Playlist = try await playlist.with([.tracks])
                         //                        self.playlistsWithTracks = playlistWithTracks
@@ -236,8 +238,9 @@ struct ContentView: View {
                             for track in tracks {
                                 if(track.artistName.contains("Taylor Swift")){
                                     if(shouldReplaceWithTV(track: track)){
-                                        //                                        Push to duplicate list
+                                        // Push to duplicate list
                                         playListsToDuplicate.append(playlistWithTracks)
+//                                        processedPlaylistIDs.append(playlistID)
                                     }
                                     print("Track: \(track.id) \(track.title) \(track.artistName)  \(track.albumTitle ?? "")")
                                 }
@@ -245,8 +248,10 @@ struct ContentView: View {
                             }
                         }
                     }
-                    print("To duplicate: \(playListsToDuplicate[0])")
-                    makeTVPlaylists(playlists: playListsToDuplicate)
+                    let uniquePlaylists = Array(Set(playListsToDuplicate))
+//                    print("To duplicate: \(playListsToDuplicate[0])", playListsToDuplicate.count, uniquePlaylists.count
+//                    )
+                    makeTVPlaylists(playlists: uniquePlaylists)
                     //                    self.playlists = playlistsResponse.items
                     //                    this is wrong
                     //                    makeTVPlaylists(playlists: playListsToDuplicate)
