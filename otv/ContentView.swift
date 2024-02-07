@@ -72,29 +72,46 @@ struct ContentView: View {
     @State var playlists = MusicItemCollection<Playlist>()
     @State var playlistsWithTracks = MusicItemCollection<Playlist>()
     //    @State var playlistsToDuplicate = MusicItemCollection<Playlist>
+    @State private var isProcessingPlaylists = false
+    @State private var processingComplete = false
+    @State var playlistsToDuplicateCount = 0
+    @State var songsToDuplicateCount = 0
+    @State var duplicateSongsCount = 0
+    @State var completedPlaylistCount = 0
+    @State var tvSongCount = 0
+    @State var isLoading = false
     
     var body: some View {
         NavigationView {
-            Button("Do It!", systemImage: "arrow.up", action: fetchPlaylistsWithTracks)
-            //                .labelStyle(.iconOnly)
-            List(playlists) {playlist in
-                HStack {
-                    //                    AsyncImage(url: song.imageUrl)
-                    //                        .frame(width: 75, height: 75, alignment: .center)
-                    VStack(alignment: .leading) {
-                        Text(playlist.name)
-                            .font(.title3)
-                        //                        Text(song.artist)
-                        //                            .font(.footnote)
+            if isLoading {
+                LoadingView()
+            } else if isProcessingPlaylists {
+                ProcessingView(processingPlaylistCount: playlistsToDuplicateCount, processingSongCount: songsToDuplicateCount, processedSongCount: $duplicateSongsCount, tvSongCount: tvSongCount)
+            } else if processingComplete {
+                CompleteView(processedPlaylistCount: playlistsToDuplicateCount, processedSongCount: songsToDuplicateCount)
+            } else {
+                VStack{
+                    Image("banner-heart").resizable().scaledToFit()
+                        .padding(.bottom, 40)
+                    //                Button("Do It!", systemImage: "arrow.up", action: fetchPlaylistsWithTracks)
+                    Button(action: {
+                        // Your action here
+                        fetchPlaylistsWithTracks()
+                    }) {
+                        Text("TAP HERE")
+                            .font(.custom("ColdBrew", size: 18))
+                            .foregroundColor(.white)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color(hex: "#3E4969")) // Replace with the color in your design
+                            .cornerRadius(20)
                     }
                     .padding()
-                    
+                    Text("To convert all your playlists to").multilineTextAlignment(.center).font(.custom("Elementary", size: 24)).foregroundColor(Color(hex: "#3E4969"))
+                    Text("only Taylor's Version").multilineTextAlignment(.center).font(.custom("Elementary", size: 24)).foregroundColor(Color(hex: "#3E4969"))
                 }
             }
         }
-        //        .onAppear{
-        //            fetchMusic()
-        //        }
     }
     
     let taylorsVersions = ["1989", "Speak Now", "Red", "Fearless" ]
@@ -181,9 +198,11 @@ struct ContentView: View {
                     let term = "\(item.title) (Taylor's Version) Taylor Swift"
                     if let tvSong = await fetchTaylorsVersion(term) {
                         _ = try await MusicLibrary.shared.add(tvSong, to: newPlaylist)
+                        duplicateSongsCount += 1
                     }
                 } else {
                     _ = try await MusicLibrary.shared.add(item, to: newPlaylist)
+                    duplicateSongsCount += 1
                 }
             }
         } catch {
@@ -196,24 +215,37 @@ struct ContentView: View {
                Task {
                    await processPlaylist(playlist)
                    print("Done: ", playlist.name)
+                   completedPlaylistCount += 1
+                   if completedPlaylistCount == playlistsToDuplicateCount {
+                       isProcessingPlaylists = false
+                       processingComplete = true
+                   }
+                   
+                   
                }
            }
     }
     
-    private func addItems(_ items: [SongOrTrack], to playlist: Playlist) async throws {
-        for item in items {
-            switch item {
-            case .song(let song):
-                let _ = try await MusicLibrary.shared.add(song, to: playlist)
-            case .track(let track):
-                let _ = try await MusicLibrary.shared.add(track, to: playlist)
-            }
-        }
-    }
+//    private func addItems(_ items: [SongOrTrack], to playlist: Playlist) async throws {
+//        for item in items {
+//            switch item {
+//            case .song(let song):
+//                let _ = try await MusicLibrary.shared.add(song, to: playlist)
+//                duplicateSongsCount += 1
+//                print("duck", duplicateSongsCount)
+//                
+//            case .track(let track):
+//                let _ = try await MusicLibrary.shared.add(track, to: playlist)
+//                duplicateSongsCount += 1
+//                print("duck", duplicateSongsCount)
+//            }
+//        }
+//    }
     
     private func fetchPlaylistsWithTracks() {
         // use task for async
         Task {
+            isLoading = true
             // request permission
             let status = await MusicAuthorization.request()
             switch status {
@@ -238,6 +270,7 @@ struct ContentView: View {
                             for track in tracks {
                                 if(track.artistName.contains("Taylor Swift")){
                                     if(shouldReplaceWithTV(track: track)){
+                                        tvSongCount += 1
                                         // Push to duplicate list
                                         playListsToDuplicate.append(playlistWithTracks)
 //                                        processedPlaylistIDs.append(playlistID)
@@ -249,12 +282,14 @@ struct ContentView: View {
                         }
                     }
                     let uniquePlaylists = Array(Set(playListsToDuplicate))
-//                    print("To duplicate: \(playListsToDuplicate[0])", playListsToDuplicate.count, uniquePlaylists.count
-//                    )
+                    playlistsToDuplicateCount = uniquePlaylists.count
+                    songsToDuplicateCount = uniquePlaylists.reduce(0) { $0 + ($1.tracks?.count ?? 999) }
+                    isProcessingPlaylists = true
+                    print("zzz \(songsToDuplicateCount) \(tvSongCount) \(songsToDuplicateCount)")
+                    
+                    
                     makeTVPlaylists(playlists: uniquePlaylists)
-                    //                    self.playlists = playlistsResponse.items
-                    //                    this is wrong
-                    //                    makeTVPlaylists(playlists: playListsToDuplicate)
+                    isLoading = false
                 } catch {
                     print(String(describing: error))
                 }

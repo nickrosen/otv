@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A51987842B71D4A900A15958 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A51987832B71D4A900A15958 /* LoadingView.swift */; };
 		A526BBFD2B536F5C00D16129 /* otvApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A526BBFC2B536F5C00D16129 /* otvApp.swift */; };
 		A526BBFF2B536F5C00D16129 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A526BBFE2B536F5C00D16129 /* ContentView.swift */; };
 		A526BC012B536F5D00D16129 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A526BC002B536F5D00D16129 /* Assets.xcassets */; };
@@ -14,6 +15,11 @@
 		A526BC0E2B536F5D00D16129 /* otvTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A526BC0D2B536F5D00D16129 /* otvTests.swift */; };
 		A526BC182B536F5D00D16129 /* otvUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A526BC172B536F5D00D16129 /* otvUITests.swift */; };
 		A526BC1A2B536F5D00D16129 /* otvUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A526BC192B536F5D00D16129 /* otvUITestsLaunchTests.swift */; };
+		A55764A92B6F35F5000F3091 /* ColorExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A55764A82B6F35F5000F3091 /* ColorExtensions.swift */; };
+		A55764AD2B6F3948000F3091 /* ColdBrew.otf in Resources */ = {isa = PBXBuildFile; fileRef = A55764AB2B6F3948000F3091 /* ColdBrew.otf */; };
+		A55764AE2B6F3948000F3091 /* Elementary.otf in Resources */ = {isa = PBXBuildFile; fileRef = A55764AC2B6F3948000F3091 /* Elementary.otf */; };
+		A55764B22B705FCB000F3091 /* ProcessingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A55764B12B705FCB000F3091 /* ProcessingView.swift */; };
+		A55764B42B706067000F3091 /* CompleteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A55764B32B706067000F3091 /* CompleteView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,6 +40,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A51987832B71D4A900A15958 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		A526BBF92B536F5C00D16129 /* otv.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = otv.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A526BBFC2B536F5C00D16129 /* otvApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = otvApp.swift; sourceTree = "<group>"; };
 		A526BBFE2B536F5C00D16129 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -44,6 +51,11 @@
 		A526BC132B536F5D00D16129 /* otvUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = otvUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A526BC172B536F5D00D16129 /* otvUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = otvUITests.swift; sourceTree = "<group>"; };
 		A526BC192B536F5D00D16129 /* otvUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = otvUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		A55764A82B6F35F5000F3091 /* ColorExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorExtensions.swift; sourceTree = "<group>"; };
+		A55764AB2B6F3948000F3091 /* ColdBrew.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = ColdBrew.otf; sourceTree = "<group>"; };
+		A55764AC2B6F3948000F3091 /* Elementary.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Elementary.otf; sourceTree = "<group>"; };
+		A55764B12B705FCB000F3091 /* ProcessingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessingView.swift; sourceTree = "<group>"; };
+		A55764B32B706067000F3091 /* CompleteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompleteView.swift; sourceTree = "<group>"; };
 		A5CA0F752B5626910026DCAE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -95,6 +107,9 @@
 		A526BBFB2B536F5C00D16129 /* otv */ = {
 			isa = PBXGroup;
 			children = (
+				A55764B02B705F86000F3091 /* Views */,
+				A55764AF2B705E45000F3091 /* extensions */,
+				A55764AA2B6F38A2000F3091 /* fonts */,
 				A5CA0F752B5626910026DCAE /* Info.plist */,
 				A526BBFC2B536F5C00D16129 /* otvApp.swift */,
 				A526BBFE2B536F5C00D16129 /* ContentView.swift */,
@@ -127,6 +142,33 @@
 				A526BC192B536F5D00D16129 /* otvUITestsLaunchTests.swift */,
 			);
 			path = otvUITests;
+			sourceTree = "<group>";
+		};
+		A55764AA2B6F38A2000F3091 /* fonts */ = {
+			isa = PBXGroup;
+			children = (
+				A55764AB2B6F3948000F3091 /* ColdBrew.otf */,
+				A55764AC2B6F3948000F3091 /* Elementary.otf */,
+			);
+			path = fonts;
+			sourceTree = "<group>";
+		};
+		A55764AF2B705E45000F3091 /* extensions */ = {
+			isa = PBXGroup;
+			children = (
+				A55764A82B6F35F5000F3091 /* ColorExtensions.swift */,
+			);
+			path = extensions;
+			sourceTree = "<group>";
+		};
+		A55764B02B705F86000F3091 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A55764B12B705FCB000F3091 /* ProcessingView.swift */,
+				A55764B32B706067000F3091 /* CompleteView.swift */,
+				A51987832B71D4A900A15958 /* LoadingView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -239,8 +281,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A55764AD2B6F3948000F3091 /* ColdBrew.otf in Resources */,
 				A526BC042B536F5D00D16129 /* Preview Assets.xcassets in Resources */,
 				A526BC012B536F5D00D16129 /* Assets.xcassets in Resources */,
+				A55764AE2B6F3948000F3091 /* Elementary.otf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -288,6 +332,10 @@
 			files = (
 				A526BBFF2B536F5C00D16129 /* ContentView.swift in Sources */,
 				A526BBFD2B536F5C00D16129 /* otvApp.swift in Sources */,
+				A55764A92B6F35F5000F3091 /* ColorExtensions.swift in Sources */,
+				A55764B22B705FCB000F3091 /* ProcessingView.swift in Sources */,
+				A55764B42B706067000F3091 /* CompleteView.swift in Sources */,
+				A51987842B71D4A900A15958 /* LoadingView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
