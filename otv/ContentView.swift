@@ -72,31 +72,47 @@ struct ContentView: View {
     @State var playlists = MusicItemCollection<Playlist>()
     @State var playlistsWithTracks = MusicItemCollection<Playlist>()
     //    @State var playlistsToDuplicate = MusicItemCollection<Playlist>
-    @State private var isProcessingPlaylists = false
-    @State private var processingComplete = false
-    @State var playlistsToDuplicateCount = 0
-    @State var songsToDuplicateCount = 0
-    @State var duplicateSongsCount = 0
-    @State var completedPlaylistCount = 0
-    @State var tvSongCount = 0
-    @State var isLoading = false
+//    @State private var isProcessingPlaylists = false
+//    @State private var processingComplete = false
+//    @State var playlistsToDuplicateCount = 0
+//    @State var songsToDuplicateCount = 0
+//    @State var duplicateSongsCount = 0
+//    @State var completedPlaylistCount = 0
+//    @State var tvSongCount = 0
+//    @State var isLoading = false
+    @StateObject var processor = PlaylistProcessor.shared
     
     var body: some View {
         NavigationView {
-            if isLoading {
+            if processor.loading {
                 LoadingView()
-            } else if isProcessingPlaylists {
-                ProcessingView(processingPlaylistCount: playlistsToDuplicateCount, processingSongCount: songsToDuplicateCount, processedSongCount: $duplicateSongsCount, tvSongCount: tvSongCount)
-            } else if processingComplete {
-                CompleteView(processedPlaylistCount: playlistsToDuplicateCount, processedSongCount: songsToDuplicateCount)
+            } else if processor.processing {
+                ProcessingView(
+                    processingPlaylistCount: processor.totalPlaylistCount,
+                    processingSongCount: processor.totalSongCount,
+                    processedSongCount: $processor.completedSongCount,
+                    tvSongCount: processor.tvSongCount
+                )
+            } else if processor.done {
+                CompleteView(
+                    processedPlaylistCount: processor.completedPlaylistCount,
+                    processedSongCount: processor.completedSongCount
+                )
             } else {
                 VStack{
                     Image("banner-heart").resizable().scaledToFit()
                         .padding(.bottom, 40)
-                    //                Button("Do It!", systemImage: "arrow.up", action: fetchPlaylistsWithTracks)
+//                    Button("Start Processing Playlists") {
+//                        PlaylistProcessor.shared.startProcessing { success in
+//                            print("Processing completed: \(success)")
+//                        }
+//                    }
                     Button(action: {
                         // Your action here
-                        fetchPlaylistsWithTracks()
+//                        fetchPlaylistsWithTracks()
+                        PlaylistProcessor.shared.startProcessing { success in
+                            print("Processing completed: \(success)")
+                        }
                     }) {
                         Text("TAP HERE")
                             .font(.custom("ColdBrew", size: 18))
@@ -114,8 +130,8 @@ struct ContentView: View {
         }
     }
     
-    let taylorsVersions = ["1989", "Speak Now", "Red", "Fearless" ]
-    let TV = "Taylor's Version"
+//    let taylorsVersions = ["1989", "Speak Now", "Red", "Fearless" ]
+//    let TV = "Taylor's Version"
     
     func addTracksToAppleMusicPlaylist(targetPlaylistId: String, tracksToAdd: [Song]) async throws -> Void {
         let tracks = AppleMusicPlaylistPostRequestBody(data: tracksToAdd.compactMap {
@@ -145,86 +161,86 @@ struct ContentView: View {
     
     
     
-    private func shouldReplaceWithTV(track: Track) -> Bool{
-        for albumTitle in taylorsVersions {
-            let trackAlbum = track.albumTitle ?? ""
-            if(trackAlbum.contains(albumTitle) && !trackAlbum.contains(TV)){
-                //                print("True", track.albumTitle ?? "")
-                return true
-            }
-        }
-        return false
-    }
+//    private func shouldReplaceWithTV(track: Track) -> Bool{
+//        for albumTitle in taylorsVersions {
+//            let trackAlbum = track.albumTitle ?? ""
+//            if(trackAlbum.contains(albumTitle) && !trackAlbum.contains(TV)){
+//                //                print("True", track.albumTitle ?? "")
+//                return true
+//            }
+//        }
+//        return false
+//    }
     
-    private func requestTaylorsVersion(searchTerm: String) -> MusicCatalogSearchRequest {
-        // other types include Album, Playlist, etc
-        var request = MusicCatalogSearchRequest(term: searchTerm, types: [Song.self])
-        request.limit = 1
-        return request
-    }
+//    private func requestTaylorsVersion(searchTerm: String) -> MusicCatalogSearchRequest {
+//        // other types include Album, Playlist, etc
+//        var request = MusicCatalogSearchRequest(term: searchTerm, types: [Song.self])
+//        request.limit = 1
+//        return request
+//    }
     
-    private func fetchTaylorsVersion(_ searchTerm: String) async -> Song? {
-        do {
-            let status = await MusicAuthorization.request()
-            switch status {
-            case .authorized:
-                let result = try await requestTaylorsVersion(searchTerm: searchTerm).response()
-                return result.songs.first
-            default:
-                return nil
-            }
-        } catch {
-            print(String(describing: error))
-            return nil
-        }
-    }
+//    private func fetchTaylorsVersion(_ searchTerm: String) async -> Song? {
+//        do {
+//            let status = await MusicAuthorization.request()
+//            switch status {
+//            case .authorized:
+//                let result = try await requestTaylorsVersion(searchTerm: searchTerm).response()
+//                return result.songs.first
+//            default:
+//                return nil
+//            }
+//        } catch {
+//            print(String(describing: error))
+//            return nil
+//        }
+//    }
     enum SongOrTrack {
         case song(Song)
         case track(Track)
     }
     
-    private func processPlaylist(_ playlist: Playlist) async {
-        guard let items = playlist.tracks else {
-            return
-        }
-        
-        print("Processing playlist: \(playlist.name)")
-        
-        do {
-            let newPlaylist = try await MusicLibrary.shared.createPlaylist(name: "\(playlist.name) (Taylor's Version)")
-
-            for item in items {
-                if shouldReplaceWithTV(track: item) {
-                    let term = "\(item.title) (Taylor's Version) Taylor Swift"
-                    if let tvSong = await fetchTaylorsVersion(term) {
-                        _ = try await MusicLibrary.shared.add(tvSong, to: newPlaylist)
-                        duplicateSongsCount += 1
-                    }
-                } else {
-                    _ = try await MusicLibrary.shared.add(item, to: newPlaylist)
-                    duplicateSongsCount += 1
-                }
-            }
-        } catch {
-            print("Failed to create or populate playlist: \(error)")
-        }
-    }
+//    private func processPlaylist(_ playlist: Playlist) async {
+//        guard let items = playlist.tracks else {
+//            return
+//        }
+//        
+//        print("Processing playlist: \(playlist.name)")
+//        
+//        do {
+//            let newPlaylist = try await MusicLibrary.shared.createPlaylist(name: "\(playlist.name) (Taylor's Version)")
+//
+//            for item in items {
+//                if shouldReplaceWithTV(track: item) {
+//                    let term = "\(item.title) (Taylor's Version) Taylor Swift"
+//                    if let tvSong = await fetchTaylorsVersion(term) {
+//                        _ = try await MusicLibrary.shared.add(tvSong, to: newPlaylist)
+//                        duplicateSongsCount += 1
+//                    }
+//                } else {
+//                    _ = try await MusicLibrary.shared.add(item, to: newPlaylist)
+//                    duplicateSongsCount += 1
+//                }
+//            }
+//        } catch {
+//            print("Failed to create or populate playlist: \(error)")
+//        }
+//    }
     
-    private func makeTVPlaylists(playlists: [Playlist]) {
-        for playlist in playlists {
-               Task {
-                   await processPlaylist(playlist)
-                   print("Done: ", playlist.name)
-                   completedPlaylistCount += 1
-                   if completedPlaylistCount == playlistsToDuplicateCount {
-                       isProcessingPlaylists = false
-                       processingComplete = true
-                   }
-                   
-                   
-               }
-           }
-    }
+//    private func makeTVPlaylists(playlists: [Playlist]) {
+//        for playlist in playlists {
+//               Task {
+//                   await processPlaylist(playlist)
+//                   print("Done: ", playlist.name)
+//                   completedPlaylistCount += 1
+//                   if completedPlaylistCount == playlistsToDuplicateCount {
+//                       isProcessingPlaylists = false
+//                       processingComplete = true
+//                   }
+//                   
+//                   
+//               }
+//           }
+//    }
     
 //    private func addItems(_ items: [SongOrTrack], to playlist: Playlist) async throws {
 //        for item in items {
@@ -242,66 +258,7 @@ struct ContentView: View {
 //        }
 //    }
     
-    private func fetchPlaylistsWithTracks() {
-        // use task for async
-        Task {
-            isLoading = true
-            // request permission
-            let status = await MusicAuthorization.request()
-            switch status {
-            case .authorized:
-                // Request -> Response
-                do{
-                    // Request for playlists
-                    let playlistsRequest = MusicLibraryRequest<Playlist>()
-                    let playlistsResponse = try await playlistsRequest.response()
-                    
-                    var playListsToDuplicate:[Playlist] = []
-                    
-                    for playlist in playlistsResponse.items {
-                        // Assuming Playlist has an 'id' or similar unique identifier
-                        let playlistID = String(describing: playlist.id) // Convert to String if necessary
-                        
-                        // Request for tracks in the playlist
-                        let playlistWithTracks:Playlist = try await playlist.with([.tracks])
-                        //                        self.playlistsWithTracks = playlistWithTracks
-                        if let tracks = playlistWithTracks.tracks {
-                            print("Playlist: \(playlistWithTracks)")
-                            for track in tracks {
-                                if(track.artistName.contains("Taylor Swift")){
-                                    if(shouldReplaceWithTV(track: track)){
-                                        tvSongCount += 1
-                                        // Push to duplicate list
-                                        playListsToDuplicate.append(playlistWithTracks)
-//                                        processedPlaylistIDs.append(playlistID)
-                                    }
-                                    print("Track: \(track.id) \(track.title) \(track.artistName)  \(track.albumTitle ?? "")")
-                                }
-                                
-                            }
-                        }
-                    }
-                    let uniquePlaylists = Array(Set(playListsToDuplicate))
-                    playlistsToDuplicateCount = uniquePlaylists.count
-                    songsToDuplicateCount = uniquePlaylists.reduce(0) { $0 + ($1.tracks?.count ?? 999) }
-                    isProcessingPlaylists = true
-                    print("zzz \(songsToDuplicateCount) \(tvSongCount) \(songsToDuplicateCount)")
-                    
-                    
-                    makeTVPlaylists(playlists: uniquePlaylists)
-                    isLoading = false
-                } catch {
-                    print(String(describing: error))
-                }
-                
-                // Assign songs
-            default:
-                break
-            }
-            
-            
-        }
-    }
+    
 }
 
 #Preview {
