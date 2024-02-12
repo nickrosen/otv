@@ -83,14 +83,30 @@ class PlaylistProcessor: ObservableObject {
         }
     }
     
+//    private func makeTVPlaylists(playlists: [Playlist]) async {
+//        for playlist in playlists {
+//            await processPlaylist(playlist)
+//            DispatchQueue.main.async {
+//                self.completedPlaylistCount += 1
+//                if self.completedPlaylistCount == self.totalPlaylistCount {
+//                    self.processing = false
+//                    self.done = true
+//                }
+//            }
+//        }
+//    }
     private func makeTVPlaylists(playlists: [Playlist]) async {
-        for playlist in playlists {
-            await processPlaylist(playlist)
-            DispatchQueue.main.async {
-                self.completedPlaylistCount += 1
-                if self.completedPlaylistCount == self.totalPlaylistCount {
-                    self.processing = false
-                    self.done = true
+        await withTaskGroup(of: Void.self) { group in
+            for playlist in playlists {
+                group.addTask {
+                    await self.processPlaylist(playlist)
+                    DispatchQueue.main.async {
+                        self.completedPlaylistCount += 1
+                        if self.completedPlaylistCount == self.totalPlaylistCount {
+                            self.processing = false
+                            self.done = true
+                        }
+                    }
                 }
             }
         }

@@ -71,16 +71,9 @@ struct ContentView: View {
     @State var songs = [Item]()
     @State var playlists = MusicItemCollection<Playlist>()
     @State var playlistsWithTracks = MusicItemCollection<Playlist>()
-    //    @State var playlistsToDuplicate = MusicItemCollection<Playlist>
-//    @State private var isProcessingPlaylists = false
-//    @State private var processingComplete = false
-//    @State var playlistsToDuplicateCount = 0
-//    @State var songsToDuplicateCount = 0
-//    @State var duplicateSongsCount = 0
-//    @State var completedPlaylistCount = 0
-//    @State var tvSongCount = 0
-//    @State var isLoading = false
     @StateObject var processor = PlaylistProcessor.shared
+    
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         NavigationView {
@@ -102,29 +95,36 @@ struct ContentView: View {
                 VStack{
                     Image("banner-heart").resizable().scaledToFit()
                         .padding(.bottom, 40)
-//                    Button("Start Processing Playlists") {
-//                        PlaylistProcessor.shared.startProcessing { success in
-//                            print("Processing completed: \(success)")
-//                        }
-//                    }
                     Button(action: {
-                        // Your action here
-//                        fetchPlaylistsWithTracks()
                         PlaylistProcessor.shared.startProcessing { success in
                             print("Processing completed: \(success)")
                         }
                     }) {
                         Text("TAP HERE")
-                            .font(.custom("ColdBrew", size: 18))
-                            .foregroundColor(.white)
+                            .font(.custom("Elementary", size: 32))
+                            .shadow(
+                                color: Color(hex: "#FF00FF"), /// shadow color
+                                radius: 0, /// shadow radius
+                                x: 1, /// x offset
+                                y: 1 /// y offset
+                            )
+                            .shadow(
+                                color: Color(hex: "#00FFFF"), /// shadow color
+                                radius: 0, /// shadow radius
+                                x: -1, /// x offset
+                                y: 1 /// y offset
+                            )
+                            .foregroundColor(Color(hex: "#18B7F6"))
                             .padding()
+                            .padding(.bottom, -4)
                             .frame(maxWidth: .infinity)
-                            .background(Color(hex: "#3E4969")) // Replace with the color in your design
+                            .background(Color(hex: "#B5E5F8")) // Replace with the color in your design
                             .cornerRadius(20)
                     }
                     .padding()
-                    Text("To convert all your playlists to").multilineTextAlignment(.center).font(.custom("Elementary", size: 24)).foregroundColor(Color(hex: "#3E4969"))
-                    Text("only Taylor's Version").multilineTextAlignment(.center).font(.custom("Elementary", size: 24)).foregroundColor(Color(hex: "#3E4969"))
+                    Text("To convert all your playlists to").multilineTextAlignment(.center).font(.custom("Elementary", size: 24)).foregroundColor(colorScheme == .dark ? .white : Color(hex: "#3E4969"))
+//                    Text("only Taylor's Version").multilineTextAlignment(.center).font(.custom("Elementary", size: 24)).foregroundColor(Color(hex: "#3E4969"))
+                    Text("only Taylor's Version").multilineTextAlignment(.center).font(.custom("Elementary", size: 24)).foregroundColor(colorScheme == .dark ? .white : Color(hex: "#3E4969"))
                 }
             }
         }
