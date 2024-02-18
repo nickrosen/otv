@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		A51987842B71D4A900A15958 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A51987832B71D4A900A15958 /* LoadingView.swift */; };
+		A51A80572B82A2BA0055B193 /* StatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A51A80562B82A2BA0055B193 /* StatusView.swift */; };
 		A526BBFD2B536F5C00D16129 /* otvApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A526BBFC2B536F5C00D16129 /* otvApp.swift */; };
 		A526BBFF2B536F5C00D16129 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A526BBFE2B536F5C00D16129 /* ContentView.swift */; };
 		A526BC012B536F5D00D16129 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A526BC002B536F5D00D16129 /* Assets.xcassets */; };
@@ -44,6 +45,7 @@
 
 /* Begin PBXFileReference section */
 		A51987832B71D4A900A15958 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
+		A51A80562B82A2BA0055B193 /* StatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusView.swift; sourceTree = "<group>"; };
 		A526BBF92B536F5C00D16129 /* otv.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = otv.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A526BBFC2B536F5C00D16129 /* otvApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = otvApp.swift; sourceTree = "<group>"; };
 		A526BBFE2B536F5C00D16129 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -176,6 +178,7 @@
 				A55764B32B706067000F3091 /* CompleteView.swift */,
 				A51987832B71D4A900A15958 /* LoadingView.swift */,
 				A5844EB82B79DA2400560A81 /* Launch Screen.storyboard */,
+				A51A80562B82A2BA0055B193 /* StatusView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -350,6 +353,7 @@
 			files = (
 				A5932D702B7829D4003139FC /* AppDelegate.swift in Sources */,
 				A526BBFF2B536F5C00D16129 /* ContentView.swift in Sources */,
+				A51A80572B82A2BA0055B193 /* StatusView.swift in Sources */,
 				A526BBFD2B536F5C00D16129 /* otvApp.swift in Sources */,
 				A55764A92B6F35F5000F3091 /* ColorExtensions.swift in Sources */,
 				A55764B22B705FCB000F3091 /* ProcessingView.swift in Sources */,
