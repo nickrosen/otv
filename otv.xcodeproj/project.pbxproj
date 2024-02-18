@@ -23,7 +23,6 @@
 		A55764B42B706067000F3091 /* CompleteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A55764B32B706067000F3091 /* CompleteView.swift */; };
 		A5844EB92B79DA2400560A81 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A5844EB82B79DA2400560A81 /* Launch Screen.storyboard */; };
 		A5932D6E2B78275D003139FC /* PlaylistProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5932D6D2B78275D003139FC /* PlaylistProcessor.swift */; };
-		A5932D702B7829D4003139FC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5932D6F2B7829D4003139FC /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,7 +62,6 @@
 		A55764B32B706067000F3091 /* CompleteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompleteView.swift; sourceTree = "<group>"; };
 		A5844EB82B79DA2400560A81 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		A5932D6D2B78275D003139FC /* PlaylistProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistProcessor.swift; sourceTree = "<group>"; };
-		A5932D6F2B7829D4003139FC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A5CA0F752B5626910026DCAE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -124,7 +122,6 @@
 				A526BBFE2B536F5C00D16129 /* ContentView.swift */,
 				A526BC002B536F5D00D16129 /* Assets.xcassets */,
 				A526BC022B536F5D00D16129 /* Preview Content */,
-				A5932D6F2B7829D4003139FC /* AppDelegate.swift */,
 			);
 			path = otv;
 			sourceTree = "<group>";
@@ -351,7 +348,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A5932D702B7829D4003139FC /* AppDelegate.swift in Sources */,
 				A526BBFF2B536F5C00D16129 /* ContentView.swift in Sources */,
 				A51A80572B82A2BA0055B193 /* StatusView.swift in Sources */,
 				A526BBFD2B536F5C00D16129 /* otvApp.swift in Sources */,
