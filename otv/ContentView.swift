@@ -6,50 +6,6 @@
 //
 import MusicKit
 import SwiftUI
-import Foundation
-import MediaPlayer
-
-public typealias LibraryPlaylists = MusicItemCollection<LibraryPlaylist>
-
-public struct LibraryPlaylist: Codable, MusicItem {
-  public let id: MusicItemID
-  public let attributes: Attributes
-
-  public struct Attributes: Codable, Sendable {
-    public let canEdit: Bool
-    public let name: String
-    public let isPublic: Bool
-    public let hasCatalog: Bool
-    public let playParams: PlayParameters
-    public let description: Description?
-    public let artwork: Artwork?
-  }
-
-  public struct Description: Codable, Sendable {
-    public let standard: String
-  }
-
-  public struct PlayParameters: Codable, Sendable {
-    public let id: MusicItemID
-    public let isLibrary: Bool
-    public let globalID: MusicItemID?
-
-    enum CodingKeys: String, CodingKey {
-      case id, isLibrary
-      case globalID = "globalId"
-    }
-  }
-
-  public var globalID: String? {
-    attributes.playParams.globalID?.rawValue
-  }
-}
-
-// Define an enumeration to wrap either a Track or a Song
-enum TrackOrSong {
-    case track(Track)
-    case song(Song)
-}
 
 struct Item: Identifiable, Hashable {
     var id = UUID()
@@ -68,15 +24,10 @@ struct AppleMusicPlaylistPostRequestItem: Codable {
 }
 
 struct ContentView: View {
-    @State var songs = [Item]()
-    @State var playlists = MusicItemCollection<Playlist>()
-    @State var playlistsWithTracks = MusicItemCollection<Playlist>()
-    //    @State var playlistsToDuplicate = MusicItemCollection<Playlist>
-    @State private var isProcessingPlaylists = false
+    let taylorsVersions = ["1989", "Speak Now", "Red", "Fearless" ]
+    let TV = "Taylor's Version"
+
     @State private var processingComplete = false
-    @State var playlistsToDuplicateCount = 0
-    @State var songsToDuplicateCount = 0
-    @State var duplicateSongsCount = 0
     @State var completedPlaylistCount = 0
     @State var tvSongCount = 0
     @State var isLoading = false
@@ -85,10 +36,6 @@ struct ContentView: View {
     @State var processingCompleteCount = 0
     @State var processingTotalCount = 0
     @State var statusMsg = ""
-//    Fetching Playlists
-//    Scanning Playlists
-//    Fetching Taylor's Versions
-//    Creating New Playlists
     @State var scanningPlaylists = false
     @State var fetchingTaylorsVersions = false
     @State var creatingNewPlaylists = false
@@ -100,12 +47,11 @@ struct ContentView: View {
             } else if processing {
                 StatusView(statusMessage: $statusMsg, completeCount: processingCompleteCount, totalCount: processingTotalCount)
             } else if processingComplete {
-                CompleteView(processedPlaylistCount: playlistsToDuplicateCount, processedSongCount: tvSongCount)
+                CompleteView(processedPlaylistCount: completedPlaylistCount, processedSongCount: tvSongCount)
             } else {
                 VStack{
                     Image("banner-heart").resizable().scaledToFit()
                         .padding(.bottom, 40)
-                    //                Button("Do It!", systemImage: "arrow.up", action: fetchPlaylistsWithTracks)
                     Button(action: {
                         // Your action here
                         isLoading = true
@@ -127,42 +73,12 @@ struct ContentView: View {
         }
     }
     
-    let taylorsVersions = ["1989", "Speak Now", "Red", "Fearless" ]
-    let TV = "Taylor's Version"
-    
-    func addTracksToAppleMusicPlaylist(targetPlaylistId: String, tracksToAdd: [Song]) async throws -> Void {
-        let tracks = AppleMusicPlaylistPostRequestBody(data: tracksToAdd.compactMap {
-            AppleMusicPlaylistPostRequestItem(id: $0.id, type: "songs")
-        })
-        
-        do {
-            if let url = URL(string: "https://api.music.apple.com/v1/me/library/playlists/\(targetPlaylistId)/tracks") {
-                var urlRequest = URLRequest(url: url)
-                urlRequest.httpMethod = "POST"
-                let encoder = JSONEncoder()
-                let data = try encoder.encode(tracks)
-                urlRequest.httpBody = data
-                let musicRequest = MusicDataRequest(urlRequest: urlRequest)
-                let musicRequestResponse = try await musicRequest.response()
-                print("Music Request Response", musicRequestResponse)
-            } else {
-                print("Bad URL!")
-                //                throw AddTracksToPlaylistError.badUrl(message: "Bad URL!")
-            }
-        } catch {
-            print("Error Saving Tracks to Playlist", error)
-            throw error
-        }
-    }
-    
-    
     
     
     private func shouldReplaceWithTV(track: Track) -> Bool{
         for albumTitle in taylorsVersions {
             let trackAlbum = track.albumTitle ?? ""
             if(trackAlbum.contains(albumTitle) && !trackAlbum.contains(TV)){
-                //                print("True", track.albumTitle ?? "")
                 return true
             }
         }
@@ -190,11 +106,6 @@ struct ContentView: View {
             print(String(describing: error))
             return nil
         }
-    }
-    
-    enum SongOrTrack {
-        case song(Song)
-        case track(Track)
     }
     
     enum PlaylistCreationError: Error {
@@ -236,7 +147,6 @@ struct ContentView: View {
         print("Processing playlist: \(playlist.name)")
         
         do {
-//            let newPlaylist = try await MusicLibrary.shared.createPlaylist(name: "\(playlist.name) (Taylor's Version)", items: items)
             var trackList:[Track] = []
 
             for item in items {
@@ -249,12 +159,8 @@ struct ContentView: View {
                         print("No track found with the substring '\(item.title)' in its title.")
                     }
                 } else {
-//                    _ = try await MusicLibrary.shared.add(item, to: newPlaylist)
-                    print(item.id)
                     trackList.append(item)
-//                    duplicateSongsCount += 1
                 }
-//                processingCompleteCount += 1
                 
             }
             try await MusicLibrary.shared.createPlaylist(name: "\(playlist.name) (Taylor's Version)", items: trackList)
@@ -269,20 +175,17 @@ struct ContentView: View {
         statusMsg = "Creating New Playlists"
         processingCompleteCount = 0
         processingTotalCount = playlists.count
-        playlistsToDuplicateCount = playlists.count
+        completedPlaylistCount = playlists.count
         isLoading = false
+        
         for playlist in playlists {
                Task {
                    await processPlaylist(playlist, tvPlaylist: tvPlaylist)
-                   print("Done: ", playlist.name)
+
                    processingCompleteCount += 1
-                   completedPlaylistCount += 1
+
                    if processingTotalCount == processingCompleteCount {
                        processing = false
-                       processingComplete = true
-                   }
-                   if completedPlaylistCount == playlistsToDuplicateCount {
-                       isProcessingPlaylists = false
                        processingComplete = true
                    }
                    
@@ -319,15 +222,10 @@ struct ContentView: View {
                         if let tracks = playlistWithTracks.tracks {
                             
                             for track in tracks {
-//                                if(processingTotalCount == tracks.count){
-//                                    processingCompleteCount += 1
-//                                }
                                 if(track.artistName.contains("Taylor Swift")){
                                     if(shouldReplaceWithTV(track: track)){
                                         tvSongCount += 1
-                                        // Push to duplicate list
                                         playListsToDuplicate.append(playlistWithTracks)
-//                                        futureTVSongs.append(track)
                                         if !futureTVSongs.contains(where: { $0.id == track.id }) {
                                             futureTVSongs.append(track)
                                         }
@@ -340,11 +238,7 @@ struct ContentView: View {
                         processingCompleteCount += 1
                     }
                     let uniquePlaylists = Array(Set(playListsToDuplicate))
-//                    playlistsToDuplicateCount = uniquePlaylists.count
-//                    songsToDuplicateCount = uniquePlaylists.reduce(0) { $0 + ($1.tracks?.count ?? 999) }
-//                    isProcessingPlaylists = true
-//                    print("zzz \(songsToDuplicateCount) \(tvSongCount) \(songsToDuplicateCount)")
-//                    futureTVSongs = Array(Set(futureTVSongs))
+                    
                     isLoading = true
                     statusMsg = "Getting Taylor's Versions"
                     processingTotalCount = futureTVSongs.count
@@ -356,14 +250,10 @@ struct ContentView: View {
                         processingCompleteCount += 1
                         let term = "\(song.title) (Taylor's Version) Taylor Swift"
                         if let tvSong = await fetchTaylorsVersion(term) {
-//                            print("sheesh", tvSong)
                             tvSongs.append(tvSong)
-    //                        _ = try await MusicLibrary.shared.add(tvSong, to: newPlaylist)
-//                            duplicateSongsCount += 1
                         }
                     }
                     let tvsPlaylist = try await createPlaylistWithTracks(named: "OTV: Replacement Tracks", tracks: tvSongs)
-//                    print("mmm \(futureTVSongs[0]) \(tvSongCount) \(futureTVSongs.count)")
                     
                     isLoading = true
                     
