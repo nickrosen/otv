@@ -40,6 +40,8 @@ struct ContentView: View {
     @State var fetchingTaylorsVersions = false
     @State var creatingNewPlaylists = false
     
+    @State var isFaqScreenVisible = false
+    
     var body: some View {
         NavigationView {
             if isLoading {
@@ -264,6 +266,15 @@ struct ContentView: View {
                 
                 // Assign songs
             default:
+                statusMsg = "Apple Music Access Required"
+                processing = true
+                isLoading = false
+                // Delay execution for 2 seconds
+                let delayInSeconds = 2.0
+                DispatchQueue.main.asyncAfter(deadline: .now() + delayInSeconds) {
+                    processing = false
+                    statusMsg = ""
+                }
                 break
             }
             
