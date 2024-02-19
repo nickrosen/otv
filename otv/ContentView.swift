@@ -42,34 +42,73 @@ struct ContentView: View {
     
     @State var isFaqScreenVisible = false
     
+    @Environment(\.colorScheme) var colorScheme
+    
     var body: some View {
         NavigationView {
-            if isLoading {
-                LoadingView()
-            } else if processing {
-                StatusView(statusMessage: $statusMsg, completeCount: processingCompleteCount, totalCount: processingTotalCount)
-            } else if processingComplete {
-                CompleteView(processedPlaylistCount: completedPlaylistCount, processedSongCount: tvSongCount)
-            } else {
-                VStack{
-                    Image("banner-heart").resizable().scaledToFit()
-                        .padding(.bottom, 40)
-                    Button(action: {
-                        // Your action here
-                        isLoading = true
-                        fetchPlaylistsWithTracks()
-                    }) {
-                        Text("TAP HERE")
-                            .font(.custom("ColdBrew", size: 18))
-                            .foregroundColor(.white)
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(Color(hex: "#3E4969")) // Replace with the color in your design
-                            .cornerRadius(20)
+            VStack{
+                if isLoading {
+                    LoadingView()
+                } else if processing {
+                    StatusView(statusMessage: $statusMsg, completeCount: processingCompleteCount, totalCount: processingTotalCount)
+                } else if processingComplete {
+                    VStack{
+                        CompleteView(processedPlaylistCount: completedPlaylistCount, processedSongCount: tvSongCount)
+                        HStack{
+                            Spacer()
+                            Button(action: {
+                                // Action for your help button
+                                isFaqScreenVisible = true
+                            }) {
+                                Image(systemName: "questionmark.circle.fill") // SF Symbol for question mark
+                                    .foregroundColor(colorScheme == .dark ? .white : .black) // Icon color
+                                    .font(.largeTitle) // Icon size
+                            }.padding(.top, 0).padding(.horizontal,20)
+                                .sheet(isPresented: $isFaqScreenVisible) {
+                                    FAQView() // Present FAQView modally
+                                }
+                        }
                     }
-                    .padding()
-                    Text("To convert all your playlists to").multilineTextAlignment(.center).font(.custom("Elementary", size: 24)).foregroundColor(Color(hex: "#3E4969"))
-                    Text("only Taylor's Version").multilineTextAlignment(.center).font(.custom("Elementary", size: 24)).foregroundColor(Color(hex: "#3E4969"))
+                } else {
+                    VStack{
+                        Image("banner-heart").resizable().scaledToFit()
+                            .padding(.bottom, 40)
+                        Button(action: {
+                            // Your action here
+                            isLoading = true
+                            fetchPlaylistsWithTracks()
+                        }) {
+                            Text("TAP HERE")
+                                .font(.custom("Elementary", size: 32))
+                                .shadow(
+                                    color: Color(hex: "#FF00FF"), /// shadow color
+                                    radius: 0, /// shadow radius
+                                    x: 1, /// x offset
+                                    y: 1 /// y offset
+                                )
+                                .shadow(
+                                    color: Color(hex: "#00FFFF"), /// shadow color
+                                    radius: 0, /// shadow radius
+                                    x: -1, /// x offset
+                                    y: 1 /// y offset
+                                )
+                                .foregroundColor(Color(hex: "#3782C7"))
+                                .padding()
+                                .padding(.bottom, -4)
+                                .frame(maxWidth: .infinity)
+                                .background(Color(hex: "#B5E5F8")) // Replace with the color in your design
+                                .cornerRadius(20)
+                        }
+                        .padding()
+                        Text("To convert all your playlists to")
+                            .multilineTextAlignment(.center)
+                            .font(.custom("Elementary", size: 24))
+                            .foregroundColor(colorScheme == .dark ? .white : Color(hex: "#3E4969"))
+                        Text("only Taylor's Version")
+                            .multilineTextAlignment(.center)
+                            .font(.custom("Elementary", size: 24))
+                            .foregroundColor(colorScheme == .dark ? .white : Color(hex: "#3E4969"))
+                    }
                 }
             }
         }
@@ -274,6 +313,9 @@ struct ContentView: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + delayInSeconds) {
                     processing = false
                     statusMsg = ""
+                    if let url = URL(string: UIApplication.openSettingsURLString), UIApplication.shared.canOpenURL(url) {
+                        UIApplication.shared.open(url)
+                    }
                 }
                 break
             }

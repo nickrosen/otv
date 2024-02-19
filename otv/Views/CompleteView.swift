@@ -10,6 +10,7 @@ import SwiftUI
 struct CompleteView: View {
     let processedPlaylistCount: Int
     let processedSongCount: Int
+    
     var body: some View {
         VStack{
             Image("lwymmd").resizable().scaledToFit()

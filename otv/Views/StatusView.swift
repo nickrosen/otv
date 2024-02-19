@@ -12,16 +12,18 @@ struct StatusView: View {
     var completeCount: Int?
     var totalCount: Int?
     
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
-        VStack { // Use VStack to vertically stack the Text views
-//            Text("Hello, World!")
+        VStack {
             Text(statusMessage).font(.custom("Elementary", size: 30))
             if let completeCount = completeCount, let totalCount = totalCount {
 //                Text("Completed \(completeCount) of \(totalCount)")
                 VStack{
                     ProgressView(value: Float(completeCount), total: Float(totalCount))
-                    Text("\(completeCount)/\(totalCount)").font(.custom("Cold Brew", size: 40))
+                    Text("\(completeCount)/\(totalCount)")
+                        .font(.custom("Cold Brew", size: 40))
+                        .foregroundColor(colorScheme == .dark ? .white : Color(hex: "#3E4969"))
                 }.padding(.horizontal, 20).padding(.vertical, 16)
             }
         }
