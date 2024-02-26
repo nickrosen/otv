@@ -119,7 +119,8 @@ struct ContentView: View {
     private func shouldReplaceWithTV(track: Track) -> Bool{
         for albumTitle in taylorsVersions {
             let trackAlbum = track.albumTitle ?? ""
-            if(trackAlbum.contains(albumTitle) && !trackAlbum.contains(TV)){
+            let trackTitle = track.title
+            if(trackAlbum.contains(albumTitle) && !trackAlbum.contains(TV) && !trackTitle.contains(TV)){
                 return true
             }
         }
